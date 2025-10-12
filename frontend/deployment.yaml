@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment 
+  namespace: my-app
+  labels:
+    app: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: daria1kulsitova/frontend
+        ports:
+          - containerPort: 8080
+        volumeMounts:
+        - name: static-files
+          mountPath: /staticfiles
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            npm run build &&
+            cp -r /app/build/* /staticfiles/ &&
+            npx -y http-server -p 8080 /staticfiles/
+      volumes:
+      - name: static-files
+        persistentVolumeClaim:
+          claimName: static-files-pvc
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1

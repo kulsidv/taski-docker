@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-configmap
+  namespace: my-app
+data:
+  nginx.conf: |
+    events {}
+
+    http {
+      include /etc/nginx/mime.types;
+      default_type application/octet-stream;
+
+      server {
+        listen 80;
+
+        # Статика Django и SPA
+        location /static/ {
+          alias /staticfiles/static/;
+          # Явно указываем MIME types
+          location ~* \.css$ {
+            add_header Content-Type text/css;
+          }
+          location ~* \.js$ {
+            add_header Content-Type application/javascript;
+          }
+        }
+
+        # Остальной конфиг без изменений...
+        location /api/ {
+          proxy_set_header Host $http_host;
+          proxy_pass http://backend-service:3030;
+        }
+
+        location /admin/ {
+          proxy_set_header Host $http_host;
+          proxy_pass http://backend-service:3030;
+        }
+
+        location / {
+          alias /staticfiles/;
+          try_files $uri $uri/ /index.html;
+          index index.html;
+        }
+      }
+    }
