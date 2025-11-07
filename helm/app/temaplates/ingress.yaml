@@ -1,0 +1,8 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Chart.Name }}-ingress
+  namespace: {{ .Release.Namespace }}
+spec:
+  rules:
+{{- toYaml .Values.ingress.spec.rules | indent 4 }}

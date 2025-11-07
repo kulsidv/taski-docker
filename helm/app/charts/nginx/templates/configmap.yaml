@@ -1,0 +1,10 @@
+apiVersion: {{ .Chart.apiVersion }}
+kind: ConfigMap
+metadata:
+  name: {{ .Chart.Name }}-configmap
+  namespace: {{ .Release.Namespace }}
+  labels:
+{{ include "nginx.labels" . | indent 4 }}
+data:
+  {{ .Values.configmap.data.filename }}: |
+{{ .Values.configmap.data.configs | indent 4 }}

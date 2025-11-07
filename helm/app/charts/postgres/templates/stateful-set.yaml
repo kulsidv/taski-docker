@@ -1,0 +1,50 @@
+apiVersion: apps/{{ .Chart.apiVersion }}
+kind: StatefulSet
+metadata:
+  name: {{ .Chart.Name }}-statefulset
+  namespace: {{ .Release.Namespace }}
+  labels:
+{{ include "postgres.labels" . | indent 4 }}
+spec:
+  serviceName: {{ .Chart.Name }}-service
+  replicas: {{ .Values.statefulset.replicas  }}
+  selector:
+    matchLabels:
+{{ include "postgres.selectorLabels" . | indent 6 }}
+  template:
+    metadata:
+      labels:
+{{ include "postgres.labels" . | indent 8 }}
+    spec:
+      containers:
+      - name: {{ .Chart.Name }}
+        {{- with .Values.statefulset.image}}
+        image: {{ printf "%s:%f.0" .name .tag}}
+        imagePullPolicy: {{ .pullPolicy | quote}}
+        {{- end }}
+        env:
+        {{- range $key, $val := .Values.statefulset.env.secret }}
+        - name: {{ $key }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "postgres.secretName" $ }}
+              key: {{ $val }}
+        {{- end }}
+        ports:
+        - containerPort: {{ .Values.service.ports.targetPort}}
+        {{- with .Values.statefulset.pvc }}
+        volumeMounts:
+        - name: {{ .name }}
+          mountPath: {{ .mountPath }}
+  volumeClaimTemplates:
+  - metadata:
+      name: {{ .name }}
+      labels:
+{{ include "postgres.labels" . | indent 4 }}
+    spec:
+      accessModes:
+      - {{ .accessModes }}
+      resources:
+        requests:
+          storage: {{ .storage }}
+        {{- end }}

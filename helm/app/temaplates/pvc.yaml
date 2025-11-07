@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.static-files-volume.name }}-pvc
+  namespace: {{ .Release.NameSpace }}
+spec:
+  accessModes:
+{{- toYaml .Values.static-files-volume.accessModes | indent 4}}
+  resources:
+    requests:
+      storage: {{ .Values.static-files-volume.storage }}

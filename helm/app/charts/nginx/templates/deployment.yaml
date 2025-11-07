@@ -1,0 +1,30 @@
+apiVersion: apps/{{ .Chart.apiVersion }}
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}-deployment 
+  namespace: {{ .Release.Namespace}}
+  labels:
+{{ include "nginx.labels" . | indent 4 }}
+spec:
+  replicas: {{ .Values.deployment.replicas }}
+  selector:
+    matchLabels:
+{{ include "nginx.selectorLabels" . | indent 6 }}
+  template:
+    metadata:
+      labels:
+{{ include "nginx.labels" . | indent 8 }}
+    spec:
+    {{- with .Values.deployment.spec.template.spec.containers }}
+      containers:
+      - name: {{ .name }}
+        image: {{ printf "%s:%f.0" .image.name .image.tag}}
+        ports:
+          - containerPort: {{ $.Values.service.ports.targetPort }}
+        volumeMounts:
+{{- toYaml .volumeMounts | nindent 10 }}
+    {{- end}}
+      volumes:
+{{- toYaml .Values.deployment.spec.template.spec.volumes | nindent 8 }}
+  strategy:
+{{- toYaml .Values.deployment.spec.strategy | indent 4}}

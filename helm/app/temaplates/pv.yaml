@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolume
+{{- with .Values.static-files-volume }}
+metadata:
+  name: {{ .name }}-pv
+  namespace: {{ $.Release.NameSpace }}
+spec:
+  capacity:
+    storage: {{ .storage }}
+  accessModes:
+{{- toYaml .accessModes | indent 4}}
+  hostPath:
+    path: {{ .pv.hostPath.path }}
+    type: {{ .pv.hostPath.type }}
+{{- end }}

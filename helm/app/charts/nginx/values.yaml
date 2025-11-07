@@ -1,0 +1,79 @@
+service:
+  spec:
+    type: NodePort
+  ports:
+    protocol: TCP
+    port: 3000
+    targetPort: 80
+
+deployment:
+  replicas: 1
+  spec:
+    template:
+      spec:
+        containers:
+          name: nginx
+          image: 
+            name: nginx
+            tag: 1.14.1
+          volumeMounts:
+            - name: nginx-config
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+            - name: static-files
+              mountPath: /staticfiles
+        volumes:
+          - name: nginx-config
+            configMap:
+              name: nginx-configmap
+          - name: static-files
+            persistentVolumeClaim:
+              claimName: static-files-pvc
+    strategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxUnavailable: 1
+
+configmap:
+  data:
+    filename: nginx.conf
+    configs: |
+      events {}
+
+      http {
+        include /etc/nginx/mime.types;
+        default_type application/octet-stream;
+
+        server {
+          listen 80;
+
+          # Статика Django и SPA
+          location /static/ {
+            alias /staticfiles/static/;
+            # Явно указываем MIME types
+            location ~* \.css$ {
+              add_header Content-Type text/css;
+            }
+            location ~* \.js$ {
+              add_header Content-Type application/javascript;
+            }
+          }
+
+          # Остальной конфиг без изменений...
+          location /api/ {
+            proxy_set_header Host $http_host;
+            proxy_pass http://backend-service:3030;
+          }
+
+          location /admin/ {
+            proxy_set_header Host $http_host;
+            proxy_pass http://backend-service:3030;
+          }
+
+          location / {
+            alias /staticfiles/;
+            try_files $uri $uri/ /index.html;
+            index index.html;
+          }
+        }
+      }

@@ -1,0 +1,30 @@
+service:
+  spec:
+    type: NodePort
+  ports:
+    protocol: TCP
+    port: 4000
+    targetPort: 8080
+
+deployment:
+  replicas: 1
+  spec:
+    template:
+      spec:
+        containers:
+          name: frontend
+          image: daria1kulsitova/frontend
+          volumeMounts:
+            name: static-files
+            mountPath: /staticfiles
+          command: ["/bin/sh", "-c"]
+          args:
+            - "npm run build && cp -r /app/build/* /staticfiles/ && npx -y http-server -p 8080 /staticfiles/"
+        volumes:
+          name: static-files
+          persistentVolumeClaim:
+            claimName: static-files-pvc
+    strategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxUnavailable: 1

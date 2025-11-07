@@ -1,0 +1,36 @@
+apiVersion: apps/{{ .Chart.apiVersion }}
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}-deployment 
+  namespace: {{ .Release.Namespace}}
+  labels:
+{{ include "frontend.labels" . | indent 4 }}
+spec:
+  replicas: {{ .Values.deployment.replicas }}
+  selector:
+    matchLabels:
+{{ include "frontend.selectorLabels" . | indent 6 }}
+  template:
+    metadata:
+      labels:
+{{ include "frontend.labels" . | indent 8 }}
+    spec:
+    {{- with .Values.deployment.spec.template.spec.containers }}
+      containers:
+      - name: {{ .name }}
+        image: {{ .image }}
+        ports:
+          - containerPort: {{ $.Values.service.ports.targetPort }}
+        volumeMounts:
+        - name: {{ .volumeMounts.name }}
+          mountPath: {{ .volumeMounts.mountPath }}
+        command:{{- toYaml .command | nindent 10 }}
+        args:
+          {{- toYaml .args | nindent 10 }}
+    {{- end }}
+      volumes:
+      - name: {{ .Values.deployment.spec.template.spec.volumes.name }}
+        persistentVolumeClaim:
+          claimName: {{ .Values.deployment.spec.template.spec.volumes.persistentVolumeClaim.claimName }}
+  strategy:
+{{- toYaml .Values.deployment.spec.strategy | indent 4 }}

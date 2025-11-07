@@ -1,0 +1,33 @@
+apiVersion: batch/{{ .Chart.apiVersion }}
+kind: Job
+metadata:
+  name: {{ .Values.job.metadata.name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+{{ include "backend.labels" . | indent 4 }}
+spec:
+  template:
+    metadata:
+      labels:
+{{ include "backend.labels" . | indent 8 }}
+    spec:
+      containers:
+      {{- with .Values.job.spec.template.spec.containers }}
+      - name: {{ .name }}
+        image: {{ .image }}
+        command: {{ .command }}
+        env:
+        {{- range $key, $val := $Values.env.values}}
+        - name: {{ $key }}
+          value: {{ $val | quote }}
+        {{- end }}
+        {{- range $key, $val := $Values.env.values}}
+        - name: {{ $key }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ $.Values.global.secret.name }}
+              key: {{ $val }}
+        {{- end }}
+      restartPolicy: {{ .restartPolicy }}
+      {{- end }}
+  backoffLimit: {{ .Values.job.spec.template.backoffLimit }}

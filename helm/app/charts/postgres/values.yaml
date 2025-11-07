@@ -1,0 +1,29 @@
+service:
+  type: ClusterIP
+  ports:
+    protocol: TCP
+    port: 5432
+    targetPort: 5432
+
+secret:
+  type: Opaque
+  postgres-user: django_user
+  postgres-password: mysecretpassword
+  postgres-db: django
+
+statefulset:
+  replicas: 1
+  image:
+    name: postgres
+    tag: 13
+    pullPolicy: IfNotPresent
+  pvc:
+    name: postgres-data
+    mountPath: /var/lib/postgresql/data
+    accessModes: ReadWriteOnce
+    storage: 2Gi
+  env:
+    secret:
+      POSTGRES_USER: postgres-user
+      POSTGRES_PASSWORD: postgres-password
+      POSTGRES_DB: postgres-db

@@ -1,0 +1,52 @@
+env:
+  values:
+    DB_HOST: postgresql-service
+    DB_PORT: 5432
+  secret:
+    POSTGRES_USER: postgres-user
+    POSTGRES_PASSWORD: postgres-password
+    POSTGRES_DB: postgres-db
+
+service:
+  spec:
+    type: NodePort
+  ports:
+    protocol: TCP
+    port: 3030
+    targetPort: 8000
+
+job:
+  metadata:
+    name: django-migrate
+  spec:
+    template:
+      spec:
+        containers:
+          name: migrate
+          image: daria1kulsitova/backend
+          command: ["python", "manage.py", "migrate"]
+          restartPolicy: Never
+    backoffLimit: 2
+
+deployment:
+  replicas: 1
+  spec:
+    template:
+      spec:
+        containers:
+          name: backend
+          image: daria1kulsitova/backend
+          volumeMounts:
+            name: static-files
+            mountPath: /staticfiles
+          command: ["/bin/sh", "-c"]
+          args:
+            - "python manage.py collectstatic --noinput && gunicorn --bind 0.0.0.0:8000 backend.wsgi"
+        volumes:
+          name: static-files
+          persistentVolumeClaim:
+            claimName: static-files-pvc
+    strategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxUnavailable: 1
