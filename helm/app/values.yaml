@@ -1,5 +1,5 @@
 global:
-  secrets:
+  secret:
     name: db-secret
   service:
     backend: backend-service

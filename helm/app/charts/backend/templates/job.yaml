@@ -17,11 +17,11 @@ spec:
         image: {{ .image }}
         command: {{ .command }}
         env:
-        {{- range $key, $val := $Values.env.values}}
+        {{- range $key, $val := $.Values.env.values}}
         - name: {{ $key }}
           value: {{ $val | quote }}
         {{- end }}
-        {{- range $key, $val := $Values.env.values}}
+        {{- range $key, $val := $.Values.env.values}}
         - name: {{ $key }}
           valueFrom:
             secretKeyRef:

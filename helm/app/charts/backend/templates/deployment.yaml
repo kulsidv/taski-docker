@@ -22,11 +22,11 @@ spec:
         ports:
           - containerPort: {{ $.Values.service.ports.targetPort }}
         env:
-        {{- range $key, $val := $Values.env.values}}
+        {{- range $key, $val := $.Values.env.values}}
         - name: {{ $key }}
           value: {{ $val | quote }}
         {{- end }}
-        {{- range $key, $val := $Values.env.secret}}
+        {{- range $key, $val := $.Values.env.secret}}
         - name: {{ $key }}
           valueFrom:
             secretKeyRef:
