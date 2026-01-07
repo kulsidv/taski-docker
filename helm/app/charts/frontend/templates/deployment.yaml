@@ -1,4 +1,4 @@
-apiVersion: apps/{{ .Chart.apiVersion }}
+apiVersion: apps/v2
 kind: Deployment
 metadata:
   name: {{ .Chart.Name }}-deployment 
@@ -33,4 +33,4 @@ spec:
         persistentVolumeClaim:
           claimName: {{ .Values.deployment.spec.template.spec.volumes.persistentVolumeClaim.claimName }}
   strategy:
-{{- toYaml .Values.deployment.spec.strategy | indent 4 }}
+{{- toYaml .Values.deployment.spec.strategy | nindent 4 }}

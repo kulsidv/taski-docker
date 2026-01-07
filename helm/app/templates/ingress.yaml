@@ -5,4 +5,4 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   rules:
-{{- toYaml .Values.ingress.spec.rules | indent 4 }}
+{{- toYaml .Values.ingress.spec.rules | nindent 2 }}

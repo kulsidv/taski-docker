@@ -1,4 +1,4 @@
-apiVersion: {{ .Chart.apiVersion }}
+apiVersion: v2
 kind: ConfigMap
 metadata:
   name: {{ .Chart.Name }}-configmap

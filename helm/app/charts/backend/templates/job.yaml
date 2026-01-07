@@ -1,4 +1,4 @@
-apiVersion: batch/{{ .Chart.apiVersion }}
+apiVersion: batch/v2
 kind: Job
 metadata:
   name: {{ .Values.job.metadata.name }}
@@ -21,7 +21,7 @@ spec:
         - name: {{ $key }}
           value: {{ $val | quote }}
         {{- end }}
-        {{- range $key, $val := $.Values.env.values}}
+        {{- range $key, $val := $.Values.env.secret}}
         - name: {{ $key }}
           valueFrom:
             secretKeyRef:
@@ -30,4 +30,4 @@ spec:
         {{- end }}
       restartPolicy: {{ .restartPolicy }}
       {{- end }}
-  backoffLimit: {{ .Values.job.spec.template.backoffLimit }}
+  backoffLimit: {{ .Values.job.spec.backoffLimit }}

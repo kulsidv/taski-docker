@@ -19,7 +19,7 @@ ingress:
                 port:
                   number: 80
 
-static-files-volume:
+staticFilesVolume:
   name: static-files
   storage: 1Gi
   accessModes:

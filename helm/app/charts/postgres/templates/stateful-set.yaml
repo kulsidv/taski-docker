@@ -1,4 +1,4 @@
-apiVersion: apps/{{ .Chart.apiVersion }}
+apiVersion: apps/v2
 kind: StatefulSet
 metadata:
   name: {{ .Chart.Name }}-statefulset
@@ -19,7 +19,7 @@ spec:
       containers:
       - name: {{ .Chart.Name }}
         {{- with .Values.statefulset.image}}
-        image: {{ printf "%s:%f.0" .name .tag}}
+        image: {{ printf "%s:%s" .name (.tag | toString) }}
         imagePullPolicy: {{ .pullPolicy | quote}}
         {{- end }}
         env:
@@ -40,7 +40,7 @@ spec:
   - metadata:
       name: {{ .name }}
       labels:
-{{ include "postgres.labels" . | indent 4 }}
+{{ include "postgres.labels" $ | indent 8 }}
     spec:
       accessModes:
       - {{ .accessModes }}

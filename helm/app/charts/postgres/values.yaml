@@ -7,9 +7,10 @@ service:
 
 secret:
   type: Opaque
-  postgres-user: django_user
-  postgres-password: mysecretpassword
-  postgres-db: django
+  data:
+    postgres-user: django_user
+    postgres-password: mysecretpassword
+    postgres-db: django
 
 statefulset:
   replicas: 1
