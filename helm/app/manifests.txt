@@ -1,6 +1,6 @@
 ---
 # Source: app/charts/postgres/templates/secret.yaml
-apiVersion: v2
+apiVersion: v1
 kind: Secret
 metadata:
   name: db-secret
@@ -8,7 +8,7 @@ metadata:
   labels:
     helm.sh/chart: postgres-0.1.0
     app.kubernetes.io/name: postgres
-    app.kubernetes.io/instance: my-app
+    app.kubernetes.io/instance: myapp
     app.kubernetes.io/version: "0.2.0"
     app.kubernetes.io/managed-by: Helm
 type: Opaque
@@ -18,7 +18,7 @@ data:
   postgres-user: "ZGphbmdvX3VzZXI="
 ---
 # Source: app/charts/nginx/templates/configmap.yaml
-apiVersion: v2
+apiVersion: v1
 kind: ConfigMap
 metadata:
   name: nginx-configmap
@@ -26,7 +26,7 @@ metadata:
   labels:
     helm.sh/chart: nginx-0.1.0
     app.kubernetes.io/name: nginx
-    app.kubernetes.io/instance: my-app
+    app.kubernetes.io/instance: myapp
     app.kubernetes.io/version: "0.2.0"
     app.kubernetes.io/managed-by: Helm
 data:
@@ -100,7 +100,7 @@ spec:
       storage: 1Gi
 ---
 # Source: app/charts/backend/templates/service.yaml
-apiVersion: v2
+apiVersion: v1
 kind: Service
 metadata:
   name: backend-service
@@ -108,21 +108,21 @@ metadata:
   labels:
     helm.sh/chart: backend-0.1.0
     app.kubernetes.io/name: backend
-    app.kubernetes.io/instance: my-app
+    app.kubernetes.io/instance: myapp
     app.kubernetes.io/version: "0.2.0"
     app.kubernetes.io/managed-by: Helm
 spec:
   type: NodePort
   selector:
     app.kubernetes.io/name: backend
-    app.kubernetes.io/instance: my-app
+    app.kubernetes.io/instance: myapp
   ports:
     - protocol: TCP
       port: 3030
       targetPort: 8000
 ---
 # Source: app/charts/frontend/templates/service.yaml
-apiVersion: v2
+apiVersion: v1
 kind: Service
 metadata:
   name: frontend-service
@@ -130,21 +130,21 @@ metadata:
   labels:
     helm.sh/chart: frontend-0.1.0
     app.kubernetes.io/name: frontend
-    app.kubernetes.io/instance: my-app
+    app.kubernetes.io/instance: myapp
     app.kubernetes.io/version: "0.2.0"
     app.kubernetes.io/managed-by: Helm
 spec:
   type: NodePort
   selector:
     app.kubernetes.io/name: frontend
-    app.kubernetes.io/instance: my-app
+    app.kubernetes.io/instance: myapp
   ports:
     - protocol: TCP
       port: 4000
       targetPort: 8080
 ---
 # Source: app/charts/nginx/templates/service.yaml
-apiVersion: v2
+apiVersion: v1
 kind: Service
 metadata:
   name: nginx-service
@@ -152,21 +152,21 @@ metadata:
   labels:
     helm.sh/chart: nginx-0.1.0
     app.kubernetes.io/name: nginx
-    app.kubernetes.io/instance: my-app
+    app.kubernetes.io/instance: myapp
     app.kubernetes.io/version: "0.2.0"
     app.kubernetes.io/managed-by: Helm
 spec:
   type: NodePort
   selector:
     app.kubernetes.io/name: nginx
-    app.kubernetes.io/instance: my-app
+    app.kubernetes.io/instance: myapp
   ports:
     - protocol: TCP
       port: 3000
       targetPort: 80
 ---
 # Source: app/charts/postgres/templates/service.yaml
-apiVersion: v2
+apiVersion: v1
 kind: Service
 metadata:
   name: postgres-service
@@ -174,7 +174,7 @@ metadata:
   labels:
     helm.sh/chart: postgres-0.1.0
     app.kubernetes.io/name: postgres
-    app.kubernetes.io/instance: my-app
+    app.kubernetes.io/instance: myapp
     app.kubernetes.io/version: "0.2.0"
     app.kubernetes.io/managed-by: Helm
 spec:
@@ -182,14 +182,14 @@ spec:
   clusterIP: None
   selector:
     app.kubernetes.io/name: postgres
-    app.kubernetes.io/instance: my-app
+    app.kubernetes.io/instance: myapp
   ports:
     - protocol: TCP
       port: 5432
       targetPort: 5432
 ---
 # Source: app/charts/backend/templates/deployment.yaml
-apiVersion: apps/v2
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: backend-deployment 
@@ -197,7 +197,7 @@ metadata:
   labels:
     helm.sh/chart: backend-0.1.0
     app.kubernetes.io/name: backend
-    app.kubernetes.io/instance: my-app
+    app.kubernetes.io/instance: myapp
     app.kubernetes.io/version: "0.2.0"
     app.kubernetes.io/managed-by: Helm
 spec:
@@ -205,13 +205,13 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: backend
-      app.kubernetes.io/instance: my-app
+      app.kubernetes.io/instance: myapp
   template:
     metadata:
       labels:
         helm.sh/chart: backend-0.1.0
         app.kubernetes.io/name: backend
-        app.kubernetes.io/instance: my-app
+        app.kubernetes.io/instance: myapp
         app.kubernetes.io/version: "0.2.0"
         app.kubernetes.io/managed-by: Helm
     spec:
@@ -222,7 +222,7 @@ spec:
           - containerPort: 8000
         env:
         - name: DB_HOST
-          value: "postgresql-service"
+          value: "postgres-service"
         - name: DB_PORT
           value: "5432"
         - name: POSTGRES_DB
@@ -258,7 +258,7 @@ spec:
     type: RollingUpdate
 ---
 # Source: app/charts/frontend/templates/deployment.yaml
-apiVersion: apps/v2
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: frontend-deployment 
@@ -266,7 +266,7 @@ metadata:
   labels:
     helm.sh/chart: frontend-0.1.0
     app.kubernetes.io/name: frontend
-    app.kubernetes.io/instance: my-app
+    app.kubernetes.io/instance: myapp
     app.kubernetes.io/version: "0.2.0"
     app.kubernetes.io/managed-by: Helm
 spec:
@@ -274,13 +274,13 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: frontend
-      app.kubernetes.io/instance: my-app
+      app.kubernetes.io/instance: myapp
   template:
     metadata:
       labels:
         helm.sh/chart: frontend-0.1.0
         app.kubernetes.io/name: frontend
-        app.kubernetes.io/instance: my-app
+        app.kubernetes.io/instance: myapp
         app.kubernetes.io/version: "0.2.0"
         app.kubernetes.io/managed-by: Helm
     spec:
@@ -308,7 +308,7 @@ spec:
     type: RollingUpdate
 ---
 # Source: app/charts/nginx/templates/deployment.yaml
-apiVersion: apps/v2
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: nginx-deployment 
@@ -316,7 +316,7 @@ metadata:
   labels:
     helm.sh/chart: nginx-0.1.0
     app.kubernetes.io/name: nginx
-    app.kubernetes.io/instance: my-app
+    app.kubernetes.io/instance: myapp
     app.kubernetes.io/version: "0.2.0"
     app.kubernetes.io/managed-by: Helm
 spec:
@@ -324,13 +324,13 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: nginx
-      app.kubernetes.io/instance: my-app
+      app.kubernetes.io/instance: myapp
   template:
     metadata:
       labels:
         helm.sh/chart: nginx-0.1.0
         app.kubernetes.io/name: nginx
-        app.kubernetes.io/instance: my-app
+        app.kubernetes.io/instance: myapp
         app.kubernetes.io/version: "0.2.0"
         app.kubernetes.io/managed-by: Helm
     spec:
@@ -358,7 +358,7 @@ spec:
     type: RollingUpdate
 ---
 # Source: app/charts/postgres/templates/stateful-set.yaml
-apiVersion: apps/v2
+apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: postgres-statefulset
@@ -366,7 +366,7 @@ metadata:
   labels:
     helm.sh/chart: postgres-0.1.0
     app.kubernetes.io/name: postgres
-    app.kubernetes.io/instance: my-app
+    app.kubernetes.io/instance: myapp
     app.kubernetes.io/version: "0.2.0"
     app.kubernetes.io/managed-by: Helm
 spec:
@@ -375,13 +375,13 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: postgres
-      app.kubernetes.io/instance: my-app
+      app.kubernetes.io/instance: myapp
   template:
     metadata:
       labels:
         helm.sh/chart: postgres-0.1.0
         app.kubernetes.io/name: postgres
-        app.kubernetes.io/instance: my-app
+        app.kubernetes.io/instance: myapp
         app.kubernetes.io/version: "0.2.0"
         app.kubernetes.io/managed-by: Helm
     spec:
@@ -416,7 +416,7 @@ spec:
       labels:
         helm.sh/chart: postgres-0.1.0
         app.kubernetes.io/name: postgres
-        app.kubernetes.io/instance: my-app
+        app.kubernetes.io/instance: myapp
         app.kubernetes.io/version: "0.2.0"
         app.kubernetes.io/managed-by: Helm
     spec:
@@ -427,7 +427,7 @@ spec:
           storage: 2Gi
 ---
 # Source: app/charts/backend/templates/job.yaml
-apiVersion: batch/v2
+apiVersion: batch/v1
 kind: Job
 metadata:
   name: django-migrate
@@ -435,7 +435,7 @@ metadata:
   labels:
     helm.sh/chart: backend-0.1.0
     app.kubernetes.io/name: backend
-    app.kubernetes.io/instance: my-app
+    app.kubernetes.io/instance: myapp
     app.kubernetes.io/version: "0.2.0"
     app.kubernetes.io/managed-by: Helm
 spec:
@@ -444,17 +444,20 @@ spec:
       labels:
         helm.sh/chart: backend-0.1.0
         app.kubernetes.io/name: backend
-        app.kubernetes.io/instance: my-app
+        app.kubernetes.io/instance: myapp
         app.kubernetes.io/version: "0.2.0"
         app.kubernetes.io/managed-by: Helm
     spec:
       containers:
       - name: migrate
         image: daria1kulsitova/backend
-        command: [python manage.py migrate]
+        command:
+          - python
+          - manage.py
+          - migrate
         env:
         - name: DB_HOST
-          value: "postgresql-service"
+          value: "postgres-service"
         - name: DB_PORT
           value: "5432"
         - name: POSTGRES_DB

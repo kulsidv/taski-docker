@@ -1,0 +1,15 @@
+dependencies:
+- name: nginx
+  repository: ""
+  version: 0.1.0
+- name: postgres
+  repository: ""
+  version: 0.1.0
+- name: backend
+  repository: ""
+  version: 0.1.0
+- name: frontend
+  repository: ""
+  version: 0.1.0
+digest: sha256:3698763538398786b1e3d6e5e95a7381bc22133115d7bffd67b9437857d866a5
+generated: "2026-01-09T14:29:42.4875461+03:00"

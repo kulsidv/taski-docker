@@ -1,4 +1,4 @@
-apiVersion: batch/v2
+apiVersion: batch/v1
 kind: Job
 metadata:
   name: {{ .Values.job.metadata.name }}
@@ -15,7 +15,7 @@ spec:
       {{- with .Values.job.spec.template.spec.containers }}
       - name: {{ .name }}
         image: {{ .image }}
-        command: {{ .command }}
+        command: {{- toYaml .command | nindent 10 }}
         env:
         {{- range $key, $val := $.Values.env.values}}
         - name: {{ $key }}

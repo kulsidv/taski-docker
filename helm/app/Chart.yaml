@@ -1,9 +1,24 @@
 apiVersion: v2
 name: app
 description: A Helm chart for Kubernetes
-
 type: application
-
 version: 0.1.0
-
 appVersion: "0.2.0"
+
+dependencies:
+  - name: nginx
+    version: "0.1.0"
+    repository: ""
+    condition: nginx.enabled
+  - name: postgres
+    version: "0.1.0"
+    repository: ""
+    condition: postgres.enabled
+  - name: backend
+    version: "0.1.0"
+    repository: ""
+    condition: backend.enabled
+  - name: frontend
+    version: "0.1.0"
+    repository: ""
+    condition: frontend.enabled

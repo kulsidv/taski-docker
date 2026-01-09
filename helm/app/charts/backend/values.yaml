@@ -1,6 +1,6 @@
 env:
   values:
-    DB_HOST: postgresql-service
+    DB_HOST: postgres-service
     DB_PORT: 5432
   secret:
     POSTGRES_USER: postgres-user
