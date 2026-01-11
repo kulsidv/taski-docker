@@ -4,4 +4,4 @@ set -a
 source .env
 set +a
 
-helm secrets --evaluate-templates -b vals upgrade --install vault-app ../app -n vault-app -f refs.yaml
+helm secrets --evaluate-templates -b vals upgrade --install my-app ../app -n my-app -f refs.yaml
