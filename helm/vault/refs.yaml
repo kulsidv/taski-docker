@@ -1,5 +1,0 @@
-postgres:
-  secret:
-    postgres-user: ref+vault://secrets/db#/postgres-user
-    postgres-password: ref+vault://secrets/db#/postgres-password
-    postgres-db: ref+vault://secrets/db#/postgres-db

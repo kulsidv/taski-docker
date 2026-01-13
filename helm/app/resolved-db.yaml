@@ -1,0 +1,6 @@
+postgres:
+  secret:
+    data:
+      postgres-db: django
+      postgres-password: mysecretpassword
+      postgres-user: django_user

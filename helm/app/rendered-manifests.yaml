@@ -1,0 +1,539 @@
+---
+# Source: app/charts/backend/templates/secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: backend-secret
+  namespace: my-app
+  labels:
+    helm.sh/chart: backend-0.1.0
+    app.kubernetes.io/name: backend
+    app.kubernetes.io/instance: my-app
+    app.kubernetes.io/version: "0.2.0"
+    app.kubernetes.io/managed-by: Helm
+type: Opaque
+data:
+  db: "MA=="
+  password: "bXlzZWNyZXRwYXNzd29yZA=="
+  username: ""
+---
+# Source: app/charts/postgres/templates/secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-secret
+  namespace: my-app
+  labels:
+    helm.sh/chart: postgres-0.1.0
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/instance: my-app
+    app.kubernetes.io/version: "0.2.0"
+    app.kubernetes.io/managed-by: Helm
+type: Opaque
+data:
+  postgres-db: "ZGphbmdv"
+  postgres-password: "bXlzZWNyZXRwYXNzd29yZA=="
+  postgres-user: "ZGphbmdvX3VzZXI="
+---
+# Source: app/charts/nginx/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-configmap
+  namespace: my-app
+  labels:
+    helm.sh/chart: nginx-0.1.0
+    app.kubernetes.io/name: nginx
+    app.kubernetes.io/instance: my-app
+    app.kubernetes.io/version: "0.2.0"
+    app.kubernetes.io/managed-by: Helm
+data:
+  nginx.conf: |
+    events {}
+    
+    http {
+      include /etc/nginx/mime.types;
+      default_type application/octet-stream;
+    
+      server {
+        listen 80;
+    
+        # Статика Django и SPA
+        location /static/ {
+          alias /staticfiles/static/;
+          # Явно указываем MIME types
+          location ~* \.css$ {
+            add_header Content-Type text/css;
+          }
+          location ~* \.js$ {
+            add_header Content-Type application/javascript;
+          }
+        }
+    
+        # Остальной конфиг без изменений...
+        location /api/ {
+          proxy_set_header Host $http_host;
+          proxy_pass http://backend-service:3030;
+        }
+    
+        location /admin/ {
+          proxy_set_header Host $http_host;
+          proxy_pass http://backend-service:3030;
+        }
+    
+        location / {
+          alias /staticfiles/;
+          try_files $uri $uri/ /index.html;
+          index index.html;
+        }
+      }
+    }
+---
+# Source: app/templates/pv.yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: static-files-pv
+  namespace: my-app
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /data/static-files
+    type: DirectoryOrCreate
+---
+# Source: app/templates/pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: static-files-pvc
+  namespace: my-app
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+# Source: app/charts/backend/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+  namespace: my-app
+  labels:
+    helm.sh/chart: backend-0.1.0
+    app.kubernetes.io/name: backend
+    app.kubernetes.io/instance: my-app
+    app.kubernetes.io/version: "0.2.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: NodePort
+  selector:
+    app.kubernetes.io/name: backend
+    app.kubernetes.io/instance: my-app
+  ports:
+    - protocol: TCP
+      port: 3030
+      targetPort: 8000
+---
+# Source: app/charts/frontend/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+  namespace: my-app
+  labels:
+    helm.sh/chart: frontend-0.1.0
+    app.kubernetes.io/name: frontend
+    app.kubernetes.io/instance: my-app
+    app.kubernetes.io/version: "0.2.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: NodePort
+  selector:
+    app.kubernetes.io/name: frontend
+    app.kubernetes.io/instance: my-app
+  ports:
+    - protocol: TCP
+      port: 4000
+      targetPort: 8080
+---
+# Source: app/charts/nginx/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+  namespace: my-app
+  labels:
+    helm.sh/chart: nginx-0.1.0
+    app.kubernetes.io/name: nginx
+    app.kubernetes.io/instance: my-app
+    app.kubernetes.io/version: "0.2.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: NodePort
+  selector:
+    app.kubernetes.io/name: nginx
+    app.kubernetes.io/instance: my-app
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 80
+---
+# Source: app/charts/postgres/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+  namespace: my-app
+  labels:
+    helm.sh/chart: postgres-0.1.0
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/instance: my-app
+    app.kubernetes.io/version: "0.2.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  clusterIP: None
+  selector:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/instance: my-app
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+---
+# Source: app/charts/backend/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment 
+  namespace: my-app
+  labels:
+    helm.sh/chart: backend-0.1.0
+    app.kubernetes.io/name: backend
+    app.kubernetes.io/instance: my-app
+    app.kubernetes.io/version: "0.2.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: backend
+      app.kubernetes.io/instance: my-app
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: backend-0.1.0
+        app.kubernetes.io/name: backend
+        app.kubernetes.io/instance: my-app
+        app.kubernetes.io/version: "0.2.0"
+        app.kubernetes.io/managed-by: Helm
+    spec:
+      containers:
+      - name: backend
+        image: daria1kulsitova/backend
+        ports:
+          - containerPort: 8000
+        env:
+        - name: DB_HOST
+          value: "postgres-service"
+        - name: DB_PORT
+          value: "5432"
+        - name: REDIS_HOST
+          value: "redis-master.redis.svc.cluster.local"
+        - name: REDIS_PORT
+          value: "6379"
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: postgres-db
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: postgres-password
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: postgres-user
+        - name: REDIS_DB
+          valueFrom:
+            secretKeyRef:
+              name: backend-secret
+              key: db
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: backend-secret
+              key: password
+        - name: REDIS_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: backend-secret
+              key: username
+        volumeMounts:
+        - name: static-files
+          mountPath: /staticfiles
+        command:
+          - /bin/sh
+          - -c
+        args:
+          - python manage.py collectstatic --noinput && gunicorn --bind 0.0.0.0:8000 backend.wsgi
+      volumes:
+      - name: static-files
+        persistentVolumeClaim:
+          claimName: static-files-pvc
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 1
+    type: RollingUpdate
+---
+# Source: app/charts/frontend/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment 
+  namespace: my-app
+  labels:
+    helm.sh/chart: frontend-0.1.0
+    app.kubernetes.io/name: frontend
+    app.kubernetes.io/instance: my-app
+    app.kubernetes.io/version: "0.2.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: frontend
+      app.kubernetes.io/instance: my-app
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: frontend-0.1.0
+        app.kubernetes.io/name: frontend
+        app.kubernetes.io/instance: my-app
+        app.kubernetes.io/version: "0.2.0"
+        app.kubernetes.io/managed-by: Helm
+    spec:
+      containers:
+      - name: frontend
+        image: daria1kulsitova/frontend
+        ports:
+          - containerPort: 8080
+        volumeMounts:
+        - name: static-files
+          mountPath: /staticfiles
+        command:
+          - /bin/sh
+          - -c
+        args:
+          - npm run build && cp -r /app/build/* /staticfiles/ && npx -y http-server -p 8080
+            /staticfiles/
+      volumes:
+      - name: static-files
+        persistentVolumeClaim:
+          claimName: static-files-pvc
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 1
+    type: RollingUpdate
+---
+# Source: app/charts/nginx/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment 
+  namespace: my-app
+  labels:
+    helm.sh/chart: nginx-0.1.0
+    app.kubernetes.io/name: nginx
+    app.kubernetes.io/instance: my-app
+    app.kubernetes.io/version: "0.2.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: nginx
+      app.kubernetes.io/instance: my-app
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: nginx-0.1.0
+        app.kubernetes.io/name: nginx
+        app.kubernetes.io/instance: my-app
+        app.kubernetes.io/version: "0.2.0"
+        app.kubernetes.io/managed-by: Helm
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.14.1
+        ports:
+          - containerPort: 80
+        volumeMounts:
+          - mountPath: /etc/nginx/nginx.conf
+            name: nginx-config
+            subPath: nginx.conf
+          - mountPath: /staticfiles
+            name: static-files
+      volumes:
+        - configMap:
+            name: nginx-configmap
+          name: nginx-config
+        - name: static-files
+          persistentVolumeClaim:
+            claimName: static-files-pvc
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 1
+    type: RollingUpdate
+---
+# Source: app/charts/postgres/templates/stateful-set.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres-statefulset
+  namespace: my-app
+  labels:
+    helm.sh/chart: postgres-0.1.0
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/instance: my-app
+    app.kubernetes.io/version: "0.2.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  serviceName: postgres-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: postgres
+      app.kubernetes.io/instance: my-app
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: postgres-0.1.0
+        app.kubernetes.io/name: postgres
+        app.kubernetes.io/instance: my-app
+        app.kubernetes.io/version: "0.2.0"
+        app.kubernetes.io/managed-by: Helm
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:13
+        imagePullPolicy: "IfNotPresent"
+        env:
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: postgres-db
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: postgres-password
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: postgres-user
+        ports:
+        - containerPort: 5432
+        volumeMounts:
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+  - metadata:
+      name: postgres-data
+      labels:
+        helm.sh/chart: postgres-0.1.0
+        app.kubernetes.io/name: postgres
+        app.kubernetes.io/instance: my-app
+        app.kubernetes.io/version: "0.2.0"
+        app.kubernetes.io/managed-by: Helm
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 2Gi
+---
+# Source: app/charts/backend/templates/job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: django-migrate
+  namespace: my-app
+  labels:
+    helm.sh/chart: backend-0.1.0
+    app.kubernetes.io/name: backend
+    app.kubernetes.io/instance: my-app
+    app.kubernetes.io/version: "0.2.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: backend-0.1.0
+        app.kubernetes.io/name: backend
+        app.kubernetes.io/instance: my-app
+        app.kubernetes.io/version: "0.2.0"
+        app.kubernetes.io/managed-by: Helm
+    spec:
+      containers:
+      - name: migrate
+        image: daria1kulsitova/backend
+        command:
+          - python
+          - manage.py
+          - migrate
+        env:
+        - name: DB_HOST
+          value: "postgres-service"
+        - name: DB_PORT
+          value: "5432"
+        - name: REDIS_HOST
+          value: "redis-master.redis.svc.cluster.local"
+        - name: REDIS_PORT
+          value: "6379"
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: postgres-db
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: postgres-password
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: postgres-user
+      restartPolicy: Never
+  backoffLimit: 2
+---
+# Source: app/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-ingress
+  namespace: my-app
+spec:
+  rules:
+  - host: taski-app.localhost.ru
+    http:
+      paths:
+      - backend:
+          service:
+            name: nginx-service
+            port:
+              number: 80
+        path: /
+        pathType: Prefix

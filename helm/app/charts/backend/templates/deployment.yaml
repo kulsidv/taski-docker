@@ -26,11 +26,18 @@ spec:
         - name: {{ $key }}
           value: {{ $val | quote }}
         {{- end }}
-        {{- range $key, $val := $.Values.env.secret}}
+        {{- range $key, $val := $.Values.env.secret.db}}
         - name: {{ $key }}
           valueFrom:
             secretKeyRef:
               name: {{ $.Values.global.secret.name }}
+              key: {{ $val }}
+        {{- end }}
+        {{- range $key, $val := $.Values.env.secret.redis}}
+        - name: {{ $key }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ $.Chart.Name }}-secret
               key: {{ $val }}
         {{- end }}
         volumeMounts:

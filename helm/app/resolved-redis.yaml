@@ -1,0 +1,6 @@
+backend:
+  secret:
+    data:
+      db: "0"
+      password: mysecretpassword
+      username: ""

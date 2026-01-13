@@ -1,0 +1,14 @@
+auth:
+  enabled: true
+
+master:
+  persistence:
+    enabled: true
+    size: 2Gi
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+
+replica:
+  replicaCount: 0
