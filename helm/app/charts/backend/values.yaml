@@ -4,6 +4,7 @@ env:
     DB_PORT: 5432
     REDIS_HOST: redis-master.redis.svc.cluster.local
     REDIS_PORT: 6379
+    DEFAULT_CACHE_TTL: 86400
   secret:
     db:
       POSTGRES_USER: postgres-user
@@ -42,7 +43,7 @@ deployment:
       spec:
         containers:
           name: backend
-          image: daria1kulsitova/backend
+          image: daria1kulsitova/backend:1.1.0
           volumeMounts:
             name: static-files
             mountPath: /staticfiles
