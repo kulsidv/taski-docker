@@ -1,0 +1,24 @@
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: {{ .Chart.Name }}-vpa
+  namespace: {{ .Release.Namespace }}
+  labels:
+{{ include "frontend.labels" . | indent 4 }}
+spec:
+  targetRef:
+    apiVersion: "apps/v1"
+    kind: Deployment
+    name: {{ .Chart.Name }}-deployment
+  updatePolicy:
+    updateMode: {{ .Values.vpa.spec.updatePolicy.updateMode }}
+  resourcePolicy:
+    containerPolicies:
+    - containerName: {{ .Chart.Name }}
+      minAllowed:
+        memory: {{ .Values.vpa.spec.resourcePolicy.containerPolicies.minAllowed.memory }}
+      maxAllowed:
+        memory: {{ .Values.vpa.spec.resourcePolicy.containerPolicies.maxAllowed.memory }}
+      controlledResources:
+      - memory
+      controlledValues: {{ .Values.vpa.spec.resourcePolicy.containerPolicies.controlledValues }}

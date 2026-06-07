@@ -1,5 +1,4 @@
 import os
-
 import redis
 
 from .utils import get_redis_connection_config

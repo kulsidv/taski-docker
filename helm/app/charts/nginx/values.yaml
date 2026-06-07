@@ -7,7 +7,6 @@ service:
     targetPort: 80
 
 deployment:
-  replicas: 1
   spec:
     template:
       spec:
@@ -22,6 +21,13 @@ deployment:
               subPath: nginx.conf
             - name: static-files
               mountPath: /staticfiles
+          resources:
+            requests:
+              cpu: 2m
+              memory: 3Mi
+            limits:
+              cpu: 38m
+              memory: 10Mi
         volumes:
           - name: nginx-config
             configMap:
@@ -77,3 +83,23 @@ configmap:
           }
         }
       }
+
+hpa:
+  minReplicas: 2
+  maxReplicas: 30
+  metrics:
+    resource:
+      target:
+        averageUtilization: 70
+
+vpa:
+  spec:
+    updatePolicy: 
+      updateMode: "Initial"
+    resourcePolicy:
+      containerPolicies:
+        minAllowed:
+          memory: 128Mi
+        maxAllowed: 
+          memory: 2Gi
+        controlledValues: RequestsAndLimits

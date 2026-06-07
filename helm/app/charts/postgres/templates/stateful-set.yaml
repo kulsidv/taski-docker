@@ -30,6 +30,8 @@ spec:
               name: {{ include "postgres.secretName" $ }}
               key: {{ $val }}
         {{- end }}
+        resources:
+          {{- toYaml .Values.statefulset.resources | nindent 10 }}
         ports:
         - containerPort: {{ .Values.service.ports.targetPort}}
         {{- with .Values.statefulset.pvc }}

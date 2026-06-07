@@ -24,3 +24,10 @@ statefulset:
       POSTGRES_USER: postgres-user
       POSTGRES_PASSWORD: postgres-password
       POSTGRES_DB: postgres-db
+  resources:
+    requests:
+      cpu: 4m
+      memory: 50Mi
+    # limits:
+    #   cpu: 20m
+    #   memory: 58Mi

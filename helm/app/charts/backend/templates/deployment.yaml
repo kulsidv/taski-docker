@@ -6,7 +6,6 @@ metadata:
   labels:
 {{ include "backend.labels" . | indent 4 }}
 spec:
-  replicas: {{ .Values.deployment.replicas }}
   selector:
     matchLabels:
 {{ include "backend.selectorLabels" . | indent 6 }}
@@ -43,9 +42,11 @@ spec:
         volumeMounts:
         - name: {{ .volumeMounts.name }}
           mountPath: {{ .volumeMounts.mountPath }}
-        command:{{- toYaml .command | nindent 10 }}
+        command: {{- toYaml .command | nindent 10 }}
         args:
           {{- toYaml .args | nindent 10 }}
+        resources:
+          {{- toYaml .resources | nindent 10 }}
     {{- end }}
       volumes:
       - name: {{ .Values.deployment.spec.template.spec.volumes.name }}

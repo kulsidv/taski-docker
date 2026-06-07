@@ -130,3 +130,6 @@ dmypy.json
 
 frontend/node_modules
 helm/vault/secrets.txt
+
+helm/app/.env.db
+helm/app/.env.redis

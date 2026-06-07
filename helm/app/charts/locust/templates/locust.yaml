@@ -1,0 +1,13 @@
+apiVersion: locust.io/v1
+kind: LocustTest
+metadata:
+  name: create-delete-test-v1
+  namespace: {{ .Release.Namespace }}
+  labels:
+{{ include "locust.labels" . | indent 4 }}
+spec:
+  workers: 2
+  args: "--host http://backend-service:3030/ --users=1000 --spawn-rate=5"
+  locustfile:
+    configMap:
+      name: {{ .Chart.Name }}-configmap

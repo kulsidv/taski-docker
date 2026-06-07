@@ -6,7 +6,6 @@ metadata:
   labels:
 {{ include "frontend.labels" . | indent 4 }}
 spec:
-  replicas: {{ .Values.deployment.replicas }}
   selector:
     matchLabels:
 {{ include "frontend.selectorLabels" . | indent 6 }}
@@ -27,6 +26,8 @@ spec:
         command:{{- toYaml .command | nindent 10 }}
         args:
           {{- toYaml .args | nindent 10 }}
+        resources:
+          {{- toYaml .resources | nindent 10 }}
     {{- end }}
       volumes:
       - name: {{ .Values.deployment.spec.template.spec.volumes.name }}

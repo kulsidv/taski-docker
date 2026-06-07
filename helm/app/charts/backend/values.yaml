@@ -37,19 +37,25 @@ job:
     backoffLimit: 2
 
 deployment:
-  replicas: 1
   spec:
     template:
       spec:
         containers:
           name: backend
-          image: daria1kulsitova/backend:1.1.0
+          image: daria1kulsitova/backend:1.1.1
           volumeMounts:
             name: static-files
             mountPath: /staticfiles
           command: ["/bin/sh", "-c"]
           args:
             - "python manage.py collectstatic --noinput && gunicorn --bind 0.0.0.0:8000 backend.wsgi"
+          resources:
+            requests:
+              cpu: 4m
+              memory: 100Mi
+            limits:
+              cpu: 430m
+              memory: 115Mi
         volumes:
           name: static-files
           persistentVolumeClaim:
@@ -61,3 +67,23 @@ deployment:
 
 secret:
   type: Opaque
+
+hpa:
+  minReplicas: 2
+  maxReplicas: 30
+  metrics:
+    resource:
+      target:
+        averageUtilization: 70
+
+vpa:
+  spec:
+    updatePolicy: 
+      updateMode: "Initial"
+    resourcePolicy:
+      containerPolicies:
+        minAllowed:
+          memory: 128Mi
+        maxAllowed: 
+          memory: 2Gi
+        controlledValues: RequestsAndLimits

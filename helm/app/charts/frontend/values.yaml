@@ -7,7 +7,6 @@ service:
     targetPort: 8080
 
 deployment:
-  replicas: 1
   spec:
     template:
       spec:
@@ -20,6 +19,14 @@ deployment:
           command: ["/bin/sh", "-c"]
           args:
             - "npm run build && cp -r /app/build/* /staticfiles/ && npx -y http-server -p 8080 /staticfiles/"
+          # в момент инициализации react просит очень много ресурсов
+          resources:
+            requests:
+              cpu: 300m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 800Mi
         volumes:
           name: static-files
           persistentVolumeClaim:
@@ -28,3 +35,23 @@ deployment:
       type: RollingUpdate
       rollingUpdate:
         maxUnavailable: 1
+
+hpa:
+  minReplicas: 2
+  maxReplicas: 30
+  metrics:
+    resource:
+      target:
+        averageUtilization: 70
+
+vpa:
+  spec:
+    updatePolicy: 
+      updateMode: "Initial"
+    resourcePolicy:
+      containerPolicies:
+        minAllowed:
+          memory: 128Mi
+        maxAllowed: 
+          memory: 2Gi
+        controlledValues: RequestsAndLimits

@@ -10,6 +10,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     'taski-app.localhost.ru',
+    'backend-service'
 ]
 
 

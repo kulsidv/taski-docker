@@ -6,7 +6,6 @@ metadata:
   labels:
 {{ include "nginx.labels" . | indent 4 }}
 spec:
-  replicas: {{ .Values.deployment.replicas }}
   selector:
     matchLabels:
 {{ include "nginx.selectorLabels" . | indent 6 }}
@@ -22,7 +21,9 @@ spec:
         ports:
           - containerPort: {{ $.Values.service.ports.targetPort }}
         volumeMounts:
-{{- toYaml .volumeMounts | nindent 10 }}
+          {{- toYaml .volumeMounts | nindent 10 }}
+        resources:
+          {{- toYaml .resources | nindent 10 }}
     {{- end}}
       volumes:
 {{- toYaml .Values.deployment.spec.template.spec.volumes | nindent 8 }}
